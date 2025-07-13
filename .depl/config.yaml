@@ -1,0 +1,88 @@
+project_name: frodo-ring
+version: 5
+langs:
+  - rust
+targets: []
+cache_files:
+  - .git
+  - Cargo.lock
+  - target
+variables: []
+pipelines:
+  - title: common-ops
+    desc: Получено из `common-ops`.
+    info: common-ops@0.1.0
+    tags:
+      - rust
+      - cargo
+      - clippy
+      - fmt
+    default: true
+    actions:
+      - title: Lint
+        info: cargo-clippy@0.1.0
+        tags: []
+        action:
+          type: pre_build
+          supported_langs:
+            - rust
+          commands:
+            - bash_c: cargo clippy
+              show_success_output: true
+              only_when_fresh: false
+              daemon: false
+      - title: Format
+        info: cargo-format@0.1.0
+        tags: []
+        exec_in_project_dir: true
+        action:
+          type: pre_build
+          supported_langs:
+            - rust
+          commands:
+            - bash_c: cargo fmt
+              only_when_fresh: false
+              daemon: false
+      - title: Test
+        info: cargo-test@0.1.0
+        tags: []
+        action:
+          type: test
+          command:
+            bash_c: cargo test
+            show_success_output: true
+            show_bash_c: false
+          success_when_found: "test result: ok."
+  - title: debug
+    desc: Получено из `common-ops`.
+    info: debug@0.1.0
+    tags:
+      - rust
+      - cargo
+    default: false
+    actions:
+      - title: Run in debug mode
+        info: cargo-debug@0.1.0
+        tags: []
+        exec_in_project_dir: false
+        action:
+          type: observe
+          command:
+            bash_c: cargo run
+  - title: docs
+    desc: Получено из `common-ops`.
+    info: docs@0.1.0
+    tags:
+      - rust
+      - cargo
+      - doc
+    default: false
+    actions:
+      - title: Open documentation
+        info: cargo-doc@0.1.0
+        tags: []
+        exec_in_project_dir: false
+        action:
+          type: observe
+          command:
+            bash_c: cargo doc --no-deps --open
