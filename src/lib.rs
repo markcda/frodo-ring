@@ -1,6 +1,6 @@
 //! Предоставляет реализацию очереди FIFO на кольцевом буфере, не использующем аллокации.
 
-use std::mem::MaybeUninit;
+use core::mem::MaybeUninit;
 
 /// Кольцевая очередь с порядком FIFO и не использующая аллокации.
 ///
@@ -154,13 +154,13 @@ impl<T, const N: usize> FrodoRing<T, N> {
     /// Получает наивную позицию (ячейку) элемента, отвечающего условию.
     ///
     /// Чтобы получить сам элемент, используйте `ring.at(naive_pos)`.
-    pub fn position<F: Fn(&T) -> bool>(&self, f: F) -> Option<usize> {
+    pub fn position<F: Fn(&T) -> bool>(&self, f: F) -> Option<isize> {
         let mut real_pos = self.head;
         let last_pos = self.neg_pos(1);
 
         while real_pos <= last_pos {
             if self.occupied[real_pos] && f(unsafe { self.buffer[real_pos].assume_init_ref() }) {
-                return Some(real_pos);
+                return Some(real_pos as isize);
             }
             real_pos = (real_pos + 1) % N;
         }
@@ -343,8 +343,6 @@ impl<'ring, T: std::fmt::Debug, const N: usize> Iterator for FrodoRingIterator<'
     type Item = &'ring T;
 
     fn next(&mut self) -> Option<Self::Item> {
-        dbg!(self.ring);
-        dbg!(self.naive_pos);
         loop {
             if self.naive_pos == self.ring.cap {
                 return None;
