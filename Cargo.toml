@@ -2,5 +2,7 @@
 name = "frodo-ring"
 version = "0.1.0"
 edition = "2024"
+description = "Ring queue with FIFO ordering with no allocations"
+license = "MIT"
 
 [dependencies]
